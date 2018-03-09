@@ -1,8 +1,5 @@
 // --- Library project
 
-// Array that store all the books
-
-
 function Book(id, name, author, pages) {
 	this.id = id;
 	this.name = name;
@@ -39,8 +36,19 @@ Book.prototype.render = function(parentNode) {
 	parentNode.appendChild(bookDiv);
 }
 
-function addBookToLibrary() {
+function addBookToLibrary(e) {
+	e.preventDefault();
+	const inputBook = document.querySelector('#input-book');
+	const inputAuthor = document.querySelector('#input-author');
+	const inputPages = document.querySelector('#input-pages');
+	const booksGrid = document.querySelector('.books-grid');
 
+	let book = new Book(myLibrary.length, inputBook.value, inputAuthor.value, inputPages.value);
+	book.render(booksGrid);
+	
+	myLibrary.push(book);
+	localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
+	form.reset();
 }
 
 function renderLibrary(myLibrary) {
@@ -50,17 +58,29 @@ function renderLibrary(myLibrary) {
 	}
 }
 
+function getStorage(myLibrary) {
+	let retrievedLibrary = JSON.parse(localStorage.getItem('myLibrary'));
+	if (retrievedLibrary != null) {
+		for (let i = 0; i < retrievedLibrary.length; i++) {
+			let obj = retrievedLibrary[i];
+			let book = new Book(obj.id, obj.name, obj.author, obj.pages);
+			myLibrary.push(book);
+		}
+	} else {
+		alert("Empty library!");
+	}
+}
+
 (function(){
 	// If localstorage empty
 
-	let myLibrary = JSON.parse(localStorage.getItem('myLibrary'));
-	if (myLibrary === null) {
-		myLibrary = [];
-		localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
-	}
-	
-	renderLIbrary(myLibrary);
+	let myLibrary = [];
+	getStorage(myLibrary);
+	renderLibrary(myLibrary);
 
+	const form = document.querySelector('.add-books__form');
+	
+	form.addEventListener('submit', addBookToLibrary);
 	// show empty library html
 	//else
 	// myLibrary = localstorage data
