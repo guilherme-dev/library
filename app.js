@@ -1,39 +1,36 @@
 // --- Library project
 
 // Prototype Book object, once will have many instances
-function Book (id, name, author, pages) {
-	this.id = id;
-	this.name = name;
-	this.author = author;
-	this.pages = pages;
-}
+class Book {
+	constructor (id, name, author, pages) {
+		this.id = id;
+		this.name = name;
+		this.author = author;
+		this.pages = pages;	
+	}
 
-// Book.prototype.toggleRead = function() {
+	render (parentNode) {
+		//TODO: 
+		// <div class="book-read">
+		// 	<input type="checkbox">
+		// 	<span>Haven't read yet</span>
+		// </div>
 
-// }
+		let htmlContent = `
+				<div class="book-info">
+					<p>${this.name}</p>
+					<p>${this.author}</p>
+					<p>${this.pages} pages</p>
+					<button class="btn-delete">Delete</button>
+				</div>
+		`;
+		let bookDiv = document.createElement('div');
+		bookDiv.className = 'item book-card';
+		bookDiv.dataset.id = this.id;
+		bookDiv.innerHTML = htmlContent;
 
-Book.prototype.render = function(parentNode) {
-
-	//TODO: 
-	// <div class="book-read">
-	// 	<input type="checkbox">
-	// 	<span>Haven't read yet</span>
-	// </div>
-
-	let htmlContent = `
-			<div class="book-info">
-				<p>${this.name}</p>
-				<p>${this.author}</p>
-				<p>${this.pages} pages</p>
-				<button class="btn-delete">Delete</button>
-			</div>
-	`;
-	let bookDiv = document.createElement('div');
-	bookDiv.className = 'item book-card';
-	bookDiv.dataset.id = this.id;
-	bookDiv.innerHTML = htmlContent;
-
-	parentNode.appendChild(bookDiv);
+		parentNode.appendChild(bookDiv);
+	}
 }
 
 let Library = (() => {
