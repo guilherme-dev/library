@@ -1,30 +1,30 @@
 // --- Library project
 
-function Book(id, name, author, pages) {
+// Prototype Book object, once will have many instances
+function Book (id, name, author, pages) {
 	this.id = id;
 	this.name = name;
 	this.author = author;
 	this.pages = pages;
 }
 
-Book.prototype.toggleRead = function() {
+// Book.prototype.toggleRead = function() {
 
-}
-
-Book.prototype.delete = function() {
-
-}
+// }
 
 Book.prototype.render = function(parentNode) {
+
+	//TODO: 
+	// <div class="book-read">
+	// 	<input type="checkbox">
+	// 	<span>Haven't read yet</span>
+	// </div>
+
 	let htmlContent = `
 			<div class="book-info">
 				<p>${this.name}</p>
 				<p>${this.author}</p>
 				<p>${this.pages} pages</p>
-				<div class="book-read">
-					<input type="checkbox">
-					<span>Haven't read yet</span>
-				</div>
 				<button class="btn-delete">Delete</button>
 			</div>
 	`;
@@ -36,55 +36,76 @@ Book.prototype.render = function(parentNode) {
 	parentNode.appendChild(bookDiv);
 }
 
-function addBookToLibrary(e) {
-	e.preventDefault();
-	const inputBook = document.querySelector('#input-book');
-	const inputAuthor = document.querySelector('#input-author');
-	const inputPages = document.querySelector('#input-pages');
-	const booksGrid = document.querySelector('.books-grid');
+let Library = (() => {
+	let booksCollection = [];
 
-	let book = new Book(myLibrary.length, inputBook.value, inputAuthor.value, inputPages.value);
-	book.render(booksGrid);
-	
-	myLibrary.push(book);
-	localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
-	form.reset();
-}
-
-function renderLibrary(myLibrary) {
+	//Cache DOM
+	let form = document.querySelector('form');
+	let inputBook = document.querySelector('#input-book');
+	let inputAuthor = document.querySelector('#input-author');
+	let inputPages = document.querySelector('#input-pages');
 	let booksGrid = document.querySelector('.books-grid');
-	for (let book of myLibrary) {
-		book.render(booksGrid);
-	}
-}
+	let addButton = document.querySelector('#addButton');
+	let deleteButton;
 
-function getStorage(myLibrary) {
-	let retrievedLibrary = JSON.parse(localStorage.getItem('myLibrary'));
-	if (retrievedLibrary != null) {
-		for (let i = 0; i < retrievedLibrary.length; i++) {
-			let obj = retrievedLibrary[i];
-			let book = new Book(obj.id, obj.name, obj.author, obj.pages);
-			myLibrary.push(book);
-		}
-	} else {
-		alert("Empty library!");
-	}
-}
-
-(function(){
-	// If localstorage empty
-
-	let myLibrary = [];
-	getStorage(myLibrary);
-	renderLibrary(myLibrary);
-
-	const form = document.querySelector('.add-books__form');
+	// Bind Events
+	addButton.addEventListener('click', addBook);
 	
-	form.addEventListener('submit', addBookToLibrary);
-	// show empty library html
-	//else
-	// myLibrary = localstorage data
-	// render library
-	//
+	//renders the entire library
+	function _render() {
+		for (let book of booksCollection) {
+			_renderBook(book);
+		}
+	}
 
+	//render a book and binds the delete button event
+	function _renderBook(book) {
+		book.render(booksGrid);
+		
+		// Needs to bind the delete event after the buttons are appended to the DOM
+		deleteButton = document.querySelector('.btn-delete');
+		deleteButton.addEventListener('click', deleteBook);
+	}
+
+	function _getStorage() {
+		let retrievedLibrary = JSON.parse(localStorage.getItem('booksCollection'));
+		if (retrievedLibrary != null) {
+			for (let obj of retrievedLibrary) {
+				let book = new Book(obj.id, obj.name, obj.author, obj.pages);
+				booksCollection.push(book);
+			}
+		} else {
+			alert("Empty library!");
+		}
+	}
+
+	function _setStorage() {
+		localStorage.setItem('booksCollection', JSON.stringify(booksCollection));
+	}
+
+	function addBook() {
+		let book = new Book(booksCollection.length, inputBook.value, inputAuthor.value, inputPages.value);
+		_renderBook(book);
+		booksCollection.push(book);
+		_setStorage();
+		form.reset();
+	}
+
+	function deleteBook(e) {
+		let selected = e.target;
+		let elem = selected.parentElement.parentElement;
+		let id = elem.dataset.id;
+
+		elem.parentNode.removeChild(elem);
+		booksCollection.splice(id, 1);
+		_setStorage();
+	}
+
+	_getStorage();
+	_render();
+
+	return {
+		addBook
+	}
 })();
+
